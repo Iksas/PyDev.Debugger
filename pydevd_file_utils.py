@@ -48,6 +48,7 @@ from _pydevd_bundle.pydevd_comm_constants import file_system_encoding, filesyste
 from _pydev_bundle.pydev_log import error_once
 
 import json
+import glob
 import os.path
 import sys
 import itertools
@@ -88,7 +89,7 @@ def _get_library_dir():
                 break
 
     if library_dir is None or not os_path_exists(library_dir):
-        library_dir = os.path.dirname(os.__file__)
+        library_dir = os.path.dirname(glob.__file__)
 
     return library_dir
 

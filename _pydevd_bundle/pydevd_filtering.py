@@ -153,10 +153,18 @@ class FilesFiltering(object):
             for path_name in set(("stdlib", "platstdlib", "purelib", "platlib")) & set(sysconfig.get_path_names()):
                 roots.append(sysconfig.get_path(path_name))
 
-        # Make sure we always get at least the standard library location (based on the `os` and
+        # Make sure we always get at least the standard library location (based on the `glob` and
         # `threading` modules -- it's a bit weird that it may be different on the ci, but it happens).
-        roots.append(os.path.dirname(os.__file__))
+        #
+        # Note: In Python 3.11 and later, some modules in the standard library are frozen.
+        # Only modules that are not frozen have a `__file__` attribute. Even though `glob` is not
+        # frozen in any version of Python yet, we check, because it could be frozen in a future version.
+        if hasattr(glob, "__file__"):
+            roots.append(os.path.dirname(glob.__file__))
+        else:
+            pydev_log.critical("Unable to detect the standard library location because the glob module is frozen.")
         roots.append(os.path.dirname(threading.__file__))
+
         if IS_PYPY:
             # On PyPy 3.6 (7.3.1) it wrongly says that sysconfig.get_path('stdlib') is
             # <install>/lib-pypy when the installed version is <install>/lib_pypy.
